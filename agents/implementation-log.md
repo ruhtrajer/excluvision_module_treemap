@@ -16,7 +16,7 @@
 | 5.0 Drill-down | ⬜ TODO | |
 
 ## Key Decisions
-- **Treemap**: d3treeR for interactive drill-down (wraps treemap package)
+- **Treemap**: r2d3 + custom D3.js script (d3treeR abandoned since 2018, not on CRAN)
 - **Input**: shinyWidgets::virtualSelectInput (handles 40k+ items)
 - **Data**: nanoparquet (lightweight parquet reader)
 
