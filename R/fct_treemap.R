@@ -36,3 +36,66 @@ aggregate_by_hierarchy <- function(data, level = "chapter", parent_filter = NULL
 
   counts
 }
+
+#' Prepare data for treemap visualization
+#'
+#' Aggregates ICD codes by hierarchy level and adds human-readable labels
+#' from the hierarchy lookup table.
+#'
+#' @param data Enriched ICD data frame (from enrich_icd_data)
+#' @param level Character: "chapter", "category", or "subcategory"
+#' @param parent_filter Optional character: filter to codes within this parent
+#' @return data.frame ready for treemap with columns: group, count, label
+#' @export
+prepare_treemap_data <- function(data, level = "chapter", parent_filter = NULL) {
+  if (nrow(data) == 0) {
+    return(data.frame(
+      group = character(0),
+      count = integer(0),
+      label = character(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+
+  # Get aggregated counts
+  agg <- aggregate_by_hierarchy(data, level = level, parent_filter = parent_filter)
+
+  if (nrow(agg) == 0) {
+    return(data.frame(
+      group = character(0),
+      count = integer(0),
+      label = character(0),
+      stringsAsFactors = FALSE
+    ))
+  }
+
+  # Load hierarchy lookup for labels
+  hiera_lookup <- get_hierarchy_lookup()
+
+  # Build hierarchy code to match lookup format
+  # For chapter level: "01", for category: "01.02", etc.
+  if (level == "chapter") {
+    agg$hiera_code <- agg$group
+  } else if (level == "category") {
+    if (!is.null(parent_filter)) {
+      agg$hiera_code <- paste(parent_filter, agg$group, sep = ".")
+    } else {
+      # Need parent info from data - this case is less common
+      agg$hiera_code <- agg$group
+    }
+  } else {
+    agg$hiera_code <- agg$group
+  }
+
+  # Match labels from lookup
+  label_idx <- match(agg$hiera_code, hiera_lookup$hiera)
+  agg$label <- ifelse(
+    is.na(label_idx),
+    agg$group,
+    hiera_lookup$lib[label_idx]
+  )
+
+  # Clean up and return
+  agg$hiera_code <- NULL
+  agg
+}

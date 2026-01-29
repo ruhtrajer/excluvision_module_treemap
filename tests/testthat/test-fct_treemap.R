@@ -81,3 +81,47 @@ test_that("aggregate_by_hierarchy returns empty data frame for empty input", {
   expect_s3_class(result, "data.frame")
   expect_equal(nrow(result), 0)
 })
+
+test_that("prepare_treemap_data returns treemap-ready data frame", {
+  test_data <- data.frame(
+    code = c("A00", "A01", "B00"),
+    lib = c("Disease A", "Disease B", "Disease C"),
+    chapter = c("01", "01", "02"),
+    category = c("01", "01", "01"),
+    subcategory = c(NA, NA, NA),
+    stringsAsFactors = FALSE
+  )
+
+  result <- prepare_treemap_data(test_data)
+
+  expect_s3_class(result, "data.frame")
+  expect_true(all(c("group", "count", "label") %in% names(result)))
+})
+
+test_that("prepare_treemap_data includes labels from hierarchy lookup", {
+  # This test uses real data to verify label lookup
+  icd_data <- get_icd_data()
+  enriched <- enrich_icd_data(icd_data)
+  # Take small subset
+  subset_data <- enriched[enriched$chapter == "01", ][1:10, ]
+
+  result <- prepare_treemap_data(subset_data)
+
+  # Labels should not be just numeric codes
+  expect_true(any(nchar(result$label) > 2))
+})
+
+test_that("prepare_treemap_data handles empty data", {
+  test_data <- data.frame(
+    code = character(0),
+    lib = character(0),
+    chapter = character(0),
+    category = character(0),
+    subcategory = character(0),
+    stringsAsFactors = FALSE
+  )
+
+  result <- prepare_treemap_data(test_data)
+
+  expect_equal(nrow(result), 0)
+})
