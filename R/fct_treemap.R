@@ -99,3 +99,33 @@ prepare_treemap_data <- function(data, level = "chapter", parent_filter = NULL) 
   agg$hiera_code <- NULL
   agg
 }
+
+#' Render a treemap visualization
+#'
+#' Creates a treemap visualization from prepared treemap data.
+#' Uses the treemap package for rendering.
+#'
+#' @param data Prepared treemap data (from prepare_treemap_data)
+#' @param title Optional title for the treemap
+#' @return treemap object (invisibly), or NULL if data is empty
+#' @export
+render_treemap <- function(data, title = "ICD-10 Codes Distribution") {
+  if (nrow(data) == 0) {
+    return(NULL)
+  }
+
+  treemap::treemap(
+    data,
+    index = "label",
+    vSize = "count",
+    title = title,
+    fontsize.labels = 12,
+    fontcolor.labels = "white",
+    fontface.labels = "bold",
+    bg.labels = 0,
+    border.col = "white",
+    border.lwds = 2,
+    palette = "Set3",
+    aspRatio = 1.5
+  )
+}

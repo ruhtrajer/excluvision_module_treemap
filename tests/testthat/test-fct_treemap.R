@@ -125,3 +125,27 @@ test_that("prepare_treemap_data handles empty data", {
 
   expect_equal(nrow(result), 0)
 })
+
+test_that("render_treemap returns NULL for empty data", {
+  test_data <- data.frame(
+    group = character(0),
+    count = integer(0),
+    label = character(0),
+    stringsAsFactors = FALSE
+  )
+
+  result <- render_treemap(test_data)
+  expect_null(result)
+})
+
+test_that("render_treemap creates treemap object", {
+  test_data <- data.frame(
+    group = c("01", "02"),
+    count = c(100, 200),
+    label = c("Chapter 1", "Chapter 2"),
+    stringsAsFactors = FALSE
+  )
+
+  # render_treemap should not error
+  expect_no_error(render_treemap(test_data))
+})
