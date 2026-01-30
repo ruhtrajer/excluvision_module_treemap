@@ -1,17 +1,17 @@
 # Implementation Log
 
 ## Current State
-- **Current Phase**: 2.0 - Basic Treemap Display
-- **Branch**: `feature/phase1-data-layer` (ready for PR)
+- **Current Phase**: 3.0 - ICD-10 Input Selector
+- **Branch**: `feature/phase2-treemap-display` (ready for merge)
 - **Blockers**: None
 
 ## Phase Status
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| 1.0 Data Layer | ✅ DONE | 17 tests pass, all functions documented |
-| 2.0 Static Treemap | ⬜ TODO | Next up |
-| 3.0 ICD Selector | ⬜ TODO | |
+| 1.0 Data Layer | ✅ DONE | 17 tests pass |
+| 2.0 Static Treemap | ✅ DONE | 37 tests pass, human verified |
+| 3.0 ICD Selector | ⬜ TODO | Next up |
 | 4.0 Reactivity | ⬜ TODO | |
 | 5.0 Drill-down | ⬜ TODO | |
 
@@ -26,13 +26,12 @@
 - No comparison mode
 - Keep it simple: make it work first
 
-## Phase 1.0 Deliverables
-- `R/fct_data.R`: get_icd_data(), get_hierarchy_lookup()
-- `R/utils_hierarchy.R`: parse_hierarchy(), enrich_icd_data()
-- Data files in `inst/extdata/`
-- 17 unit tests in `tests/testthat/`
+## Phase 2.0 Deliverables
+- `R/fct_treemap.R`: aggregate_by_hierarchy(), prepare_treemap_data(), render_treemap()
+- `R/mod_treemap.R`: mod_treemap_ui(), mod_treemap_server()
+- 20 new tests (37 total)
 
 ## Next Steps
-1. Create detailed plan for Phase 2.0
-2. Implement treemap aggregation logic
-3. Create static treemap rendering
+1. Create detailed plan for Phase 3.0
+2. Implement virtualSelectInput for ICD-10 selection
+3. Wire input to treemap module
