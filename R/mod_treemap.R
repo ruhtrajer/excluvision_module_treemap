@@ -6,7 +6,7 @@
 mod_treemap_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
-    shiny::plotOutput(ns("treemap_plot"), height = "500px")
+    r2d3::d3Output(ns("treemap_d3"), height = "500px")
   )
 }
 
@@ -30,21 +30,37 @@ mod_treemap_server <- function(id, selected_codes) {
       icd_data[icd_data$code %in% codes, ]
     })
 
-    # Prepare treemap data
-    treemap_data <- shiny::reactive({
-      prepare_treemap_data(filtered_data())
+    # Build hierarchy for D3
+    hierarchy_data <- shiny::reactive({
+      data <- filtered_data()
+      if (nrow(data) == 0) {
+        return(NULL)
+      }
+      build_treemap_hierarchy(data)
     })
 
-    # Render treemap
-    output$treemap_plot <- shiny::renderPlot({
-      data <- treemap_data()
-      if (nrow(data) == 0) {
-        plot.new()
-        text(0.5, 0.5, "Select ICD-10 codes to display treemap",
-             cex = 1.5, col = "gray50")
-        return()
+    # Render D3 treemap
+    output$treemap_d3 <- r2d3::renderD3({
+      data <- hierarchy_data()
+      if (is.null(data)) {
+        # Return empty visualization with message
+        return(r2d3::r2d3(
+          data = list(name = "root", children = list()),
+          script = app_sys("d3/treemap.js"),
+          options = list(inputId = session$ns("treemap"))
+        ))
       }
-      render_treemap(data)
+      r2d3::r2d3(
+        data = data,
+        script = app_sys("d3/treemap.js"),
+        options = list(inputId = session$ns("treemap"))
+      )
+    })
+
+    # Observe drill-down events from D3
+    shiny::observeEvent(input$treemap_drill, {
+      drill_info <- input$treemap_drill
+      # Can be used for additional R-side logic if needed
     })
   })
 }
