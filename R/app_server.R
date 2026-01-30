@@ -10,7 +10,7 @@ app_server <- function(input, output, session) {
   sample_codes <- reactive({
     icd_data <- get_icd_data()
     # Return first 500 codes as sample
-    icd_data$code[1:500]
+    icd_data$code[c(sample(1:30000, 500, replace = FALSE))]
   })
 
   mod_treemap_server("treemap", selected_codes = sample_codes)
