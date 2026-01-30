@@ -25,7 +25,8 @@ mod_icd_selector_ui <- function(id) {
       optionsSelectedText = "codes selected",
       allOptionsSelectedText = "All codes selected",
       showSelectedOptionsFirst = TRUE,
-      zIndex = 10
+      zIndex = 9999,
+      position = "bottom"
     )
   )
 }
