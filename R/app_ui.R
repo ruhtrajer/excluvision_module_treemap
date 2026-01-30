@@ -8,7 +8,19 @@ app_ui <- function(request) {
   tagList(
     golem_add_external_resources(),
     fluidPage(
-      golem::golem_welcome_page()
+      h1("ICD-10 Treemap"),
+      fluidRow(
+        column(
+          width = 4,
+          wellPanel(
+            mod_icd_selector_ui("icd_selector")
+          )
+        ),
+        column(
+          width = 8,
+          mod_treemap_ui("treemap")
+        )
+      )
     )
   )
 }
