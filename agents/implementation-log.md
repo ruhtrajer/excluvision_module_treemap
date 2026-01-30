@@ -1,22 +1,22 @@
 # Implementation Log
 
 ## Current State
-- **Current Phase**: 3.0 - ICD-10 Input Selector
-- **Branch**: `feature/phase2-treemap-display` (ready for merge)
+- **Current Phase**: 5.0 - Interactive Drill-Down
+- **Branch**: `feature/phase3-icd-selector` (ready for merge)
 - **Blockers**: None
 
 ## Phase Status
 
 | Phase | Status | Notes |
 |-------|--------|-------|
-| 1.0 Data Layer | ✅ DONE | 17 tests pass |
-| 2.0 Static Treemap | ✅ DONE | 37 tests pass, human verified |
-| 3.0 ICD Selector | ⬜ TODO | Next up |
-| 4.0 Reactivity | ⬜ TODO | |
-| 5.0 Drill-down | ⬜ TODO | |
+| 1.0 Data Layer | ✅ DONE | 17 tests |
+| 2.0 Static Treemap | ✅ DONE | 20 tests |
+| 3.0 ICD Selector | ✅ DONE | 9 tests, human verified |
+| 4.0 Reactivity | ✅ DONE | Completed as part of Phase 3.0 |
+| 5.0 Drill-down | ⬜ TODO | Next up - r2d3 + D3.js |
 
 ## Key Decisions
-- **Treemap**: r2d3 + custom D3.js script (d3treeR abandoned since 2018, not on CRAN)
+- **Treemap**: r2d3 + custom D3.js script (d3treeR abandoned)
 - **Input**: shinyWidgets::virtualSelectInput (handles 40k+ items)
 - **Data**: nanoparquet (lightweight parquet reader)
 
@@ -24,14 +24,13 @@
 - No export features yet
 - No custom theming yet
 - No comparison mode
-- Keep it simple: make it work first
 
-## Phase 2.0 Deliverables
-- `R/fct_treemap.R`: aggregate_by_hierarchy(), prepare_treemap_data(), render_treemap()
-- `R/mod_treemap.R`: mod_treemap_ui(), mod_treemap_server()
-- 20 new tests (37 total)
+## Phase 3.0 Deliverables
+- `R/fct_data.R`: format_icd_choices()
+- `R/mod_icd_selector.R`: mod_icd_selector_ui(), mod_icd_selector_server()
+- 48 total tests
 
 ## Next Steps
-1. Create detailed plan for Phase 3.0
-2. Implement virtualSelectInput for ICD-10 selection
-3. Wire input to treemap module
+1. Create detailed plan for Phase 5.0
+2. Add r2d3 dependency
+3. Implement D3.js treemap with drill-down

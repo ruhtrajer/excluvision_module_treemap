@@ -65,8 +65,8 @@ nanoparquet                       → Data loading
 |-------|-------------------------------------|---------|
 | 1.0   | Data layer & hierarchy parsing      | ✅ DONE |
 | 2.0   | Basic treemap display (static)      | ✅ DONE |
-| 3.0   | ICD-10 input selector               | ⬜ TODO |
-| 4.0   | Wire input → treemap reactivity     | ⬜ TODO |
+| 3.0   | ICD-10 input selector               | ✅ DONE |
+| 4.0   | Wire input → treemap reactivity     | ✅ DONE |
 | 5.0   | Interactive drill-down with r2d3    | ⬜ TODO |
 
 ------------------------------------------------------------------------
