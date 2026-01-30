@@ -4,6 +4,10 @@
 // @param height - container height
 // @param options - additional options from R
 
+div.selectAll("*").remove();
+div.style("position", "relative")
+  .style("overflow", "hidden");
+
 // Handle empty data
 if (!data.children || data.children.length === 0) {
   div.append("div")
@@ -24,7 +28,7 @@ const color = d3.scaleOrdinal(d3.schemeTableau10);
 const treemap = d3.treemap()
   .size([width, height])
   .paddingOuter(3)
-  .paddingTop(19)
+  .paddingTop(3)
   .paddingInner(1)
   .round(true);
 
@@ -34,15 +38,26 @@ const hierarchy = d3.hierarchy(data)
   .sort((a, b) => b.value - a.value);
 
 const root = treemap(hierarchy);
+let currentNode = root;
 
-// Breadcrumb container
-const breadcrumb = div.insert("div", ":first-child")
-  .attr("class", "breadcrumb")
-  .style("padding", "5px 10px")
-  .style("background", "#f5f5f5")
-  .style("border-bottom", "1px solid #ddd")
+const backButton = div.append("button")
+  .text("Back")
+  .style("position", "absolute")
+  .style("top", "6px")
+  .style("left", "6px")
+  .style("z-index", "5")
+  .style("padding", "2px 8px")
   .style("font-size", "12px")
-  .style("margin-bottom", "5px");
+  .style("border", "1px solid #ccc")
+  .style("border-radius", "4px")
+  .style("background", "#fff")
+  .style("cursor", "pointer")
+  .style("display", "none")
+  .on("click", () => {
+    if (currentNode.parent) {
+      zoomTo(currentNode.parent);
+    }
+  });
 
 // Create SVG
 const svg = div.append("svg")
@@ -54,25 +69,14 @@ const svg = div.append("svg")
 // Container for treemap cells
 const container = svg.append("g");
 
-// Update breadcrumb
-function updateBreadcrumb(path) {
-  breadcrumb.html("");
-  
-  path.forEach((item, i) => {
-    if (i > 0) {
-      breadcrumb.append("span").text(" > ");
-    }
-    
-    const link = breadcrumb.append("span")
-      .text(item.name)
-      .style("cursor", i < path.length - 1 ? "pointer" : "default")
-      .style("color", i < path.length - 1 ? "#0066cc" : "#333")
-      .style("text-decoration", i < path.length - 1 ? "underline" : "none");
-    
-    if (i < path.length - 1) {
-      link.on("click", () => zoomTo(item.node));
-    }
-  });
+svg.on("dblclick", () => {
+  if (currentNode.parent) {
+    zoomTo(currentNode.parent);
+  }
+});
+
+function updateBackButton() {
+  backButton.style("display", currentNode.parent ? "block" : "none");
 }
 
 // Render function
@@ -115,7 +119,8 @@ function render(node) {
       .attr("stroke", "#fff")
       .attr("stroke-width", 1)
       .style("cursor", origNode && origNode.children ? "pointer" : "default")
-      .on("click", () => {
+      .on("click", (event) => {
+        event.stopPropagation();
         if (origNode && origNode.children) {
           zoomTo(origNode);
         }
@@ -159,14 +164,8 @@ function render(node) {
 
 // Zoom to a node
 function zoomTo(node) {
-  // Build breadcrumb path
-  const path = [];
-  let current = node;
-  while (current) {
-    path.unshift({name: current.data.name || "All", node: current});
-    current = current.parent;
-  }
-  updateBreadcrumb(path);
+  currentNode = node;
+  updateBackButton();
   render(node);
   
   // Send message to Shiny
@@ -180,5 +179,5 @@ function zoomTo(node) {
 }
 
 // Initial render
-updateBreadcrumb([{name: "All", node: root}]);
+updateBackButton();
 render(root);

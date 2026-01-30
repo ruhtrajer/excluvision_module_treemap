@@ -6,7 +6,9 @@
 mod_treemap_ui <- function(id) {
   ns <- shiny::NS(id)
   shiny::tagList(
-    r2d3::d3Output(ns("treemap_d3"), height = "500px")
+    bslib::card(
+      r2d3::d3Output(ns("treemap_d3"), height = "70vh")
+    )
   )
 }
 
