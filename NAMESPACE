@@ -2,8 +2,11 @@
 
 export(aggregate_by_hierarchy)
 export(enrich_icd_data)
+export(format_icd_choices)
 export(get_hierarchy_lookup)
 export(get_icd_data)
+export(mod_icd_selector_server)
+export(mod_icd_selector_ui)
 export(mod_treemap_server)
 export(mod_treemap_ui)
 export(parse_hierarchy)
