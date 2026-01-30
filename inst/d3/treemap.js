@@ -4,6 +4,9 @@
 // @param height - container height
 // @param options - additional options from R
 
+// Clear any existing content first
+div.selectAll("*").remove();
+
 // Handle empty data
 if (!data.children || data.children.length === 0) {
   div.append("div")
