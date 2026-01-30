@@ -11,7 +11,13 @@ app_ui <- function(request) {
       h1("ICD-10 Treemap"),
       fluidRow(
         column(
-          width = 12,
+          width = 4,
+          wellPanel(
+            mod_icd_selector_ui("icd_selector")
+          )
+        ),
+        column(
+          width = 8,
           mod_treemap_ui("treemap")
         )
       )

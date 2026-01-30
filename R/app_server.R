@@ -5,13 +5,9 @@
 #' @import shiny
 #' @noRd
 app_server <- function(input, output, session) {
-  # For Phase 2.0: use sample codes for testing
-  # This will be replaced with actual input selection in Phase 3.0
-  sample_codes <- reactive({
-    icd_data <- get_icd_data()
-    # Return first 500 codes as sample
-    icd_data$code[c(sample(1:30000, 500, replace = FALSE))]
-  })
+  # ICD selector returns reactive with selected codes
+  selected_codes <- mod_icd_selector_server("icd_selector")
 
-  mod_treemap_server("treemap", selected_codes = sample_codes)
+  # Pass selected codes to treemap module
+  mod_treemap_server("treemap", selected_codes = selected_codes)
 }
