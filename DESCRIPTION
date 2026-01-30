@@ -11,7 +11,9 @@ License: What license is it under?
 Imports: 
     config,
     golem,
+    jsonlite,
     nanoparquet,
+    r2d3,
     shiny,
     shinyWidgets,
     treemap
