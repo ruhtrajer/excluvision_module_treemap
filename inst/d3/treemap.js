@@ -35,14 +35,8 @@ const hierarchy = d3.hierarchy(data)
 
 const root = treemap(hierarchy);
 
-// Breadcrumb container
-const breadcrumb = div.insert("div", ":first-child")
-  .attr("class", "breadcrumb")
-  .style("padding", "5px 10px")
-  .style("background", "#f5f5f5")
-  .style("border-bottom", "1px solid #ddd")
-  .style("font-size", "12px")
-  .style("margin-bottom", "5px");
+// Track current node for navigation
+let currentNode = root;
 
 // Create SVG
 const svg = div.append("svg")
@@ -54,35 +48,15 @@ const svg = div.append("svg")
 // Container for treemap cells
 const container = svg.append("g");
 
-// Update breadcrumb
-function updateBreadcrumb(path) {
-  breadcrumb.html("");
-  
-  path.forEach((item, i) => {
-    if (i > 0) {
-      breadcrumb.append("span").text(" > ");
-    }
-    
-    const link = breadcrumb.append("span")
-      .text(item.name)
-      .style("cursor", i < path.length - 1 ? "pointer" : "default")
-      .style("color", i < path.length - 1 ? "#0066cc" : "#333")
-      .style("text-decoration", i < path.length - 1 ? "underline" : "none");
-    
-    if (i < path.length - 1) {
-      link.on("click", () => zoomTo(item.node));
-    }
-  });
-}
-
 // Render function
 function render(node) {
-  // Get direct children to display
-  const displayNodes = node.children || [];
+  currentNode = node;
   
   // Clear and rebuild
   container.selectAll("*").remove();
   
+  // Get direct children to display
+  const displayNodes = node.children || [];
   if (displayNodes.length === 0) return;
   
   // Recompute layout for current view
@@ -104,25 +78,32 @@ function render(node) {
       node.children.find(c => (c.data.id || c.data.name) === (d.data.id || d.data.name)) : 
       null;
     
+    const hasChildren = origNode && origNode.children && origNode.children.length > 0;
+    
     // Rectangle
     cell.append("rect")
       .attr("width", Math.max(0, d.x1 - d.x0))
       .attr("height", Math.max(0, d.y1 - d.y0))
-      .attr("fill", () => {
-        // Color by this node's id
-        return color(d.data.id || d.data.name);
-      })
+      .attr("fill", color(d.data.id || d.data.name))
       .attr("stroke", "#fff")
       .attr("stroke-width", 1)
-      .style("cursor", origNode && origNode.children ? "pointer" : "default")
-      .on("click", () => {
-        if (origNode && origNode.children) {
-          zoomTo(origNode);
+      .style("cursor", hasChildren ? "pointer" : "default")
+      .on("click", (event) => {
+        // Single click: drill down if has children
+        if (hasChildren) {
+          render(origNode);
+        }
+      })
+      .on("dblclick", (event) => {
+        // Double click: go back up one level
+        event.stopPropagation();
+        if (currentNode.parent) {
+          render(currentNode.parent);
         }
       });
     
     // Clip path for text
-    const clipId = "clip-" + (d.data.id || d.data.name).replace(/\./g, "-");
+    const clipId = "clip-" + (d.data.id || d.data.name).replace(/[.\s]/g, "-");
     cell.append("clipPath")
       .attr("id", clipId)
       .append("rect")
@@ -149,25 +130,13 @@ function render(node) {
       .style("fill", "white")
       .style("font-weight", "bold")
       .style("font-size", w > 100 ? "12px" : w > 50 ? "10px" : "8px")
+      .style("pointer-events", "none")
       .text(labelText);
     
     // Tooltip
     cell.append("title")
-      .text(`${d.data.name}\n${d.value} codes`);
+      .text(`${d.data.name}\n${d.value} codes${hasChildren ? "\n(click to drill down)" : ""}`);
   });
-}
-
-// Zoom to a node
-function zoomTo(node) {
-  // Build breadcrumb path
-  const path = [];
-  let current = node;
-  while (current) {
-    path.unshift({name: current.data.name || "All", node: current});
-    current = current.parent;
-  }
-  updateBreadcrumb(path);
-  render(node);
   
   // Send message to Shiny
   if (typeof Shiny !== "undefined" && options && options.inputId) {
@@ -179,6 +148,5 @@ function zoomTo(node) {
   }
 }
 
-// Initial render
-updateBreadcrumb([{name: "All", node: root}]);
+// Initial render at root level
 render(root);
