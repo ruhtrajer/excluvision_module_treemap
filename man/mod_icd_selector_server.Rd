@@ -4,15 +4,17 @@
 \alias{mod_icd_selector_server}
 \title{ICD Selector Module Server}
 \usage{
-mod_icd_selector_server(id)
+mod_icd_selector_server(id, r)
 }
 \arguments{
 \item{id}{Module namespace id}
+
+\item{r}{Shared reactiveValues object with selected_codes slot}
 }
 \value{
-Reactive expression returning vector of selected ICD codes
+NULL (writes to r$selected_codes as side effect)
 }
 \description{
 Server logic for ICD code selector. Loads ICD data and updates
-virtualSelectInput choices.
+virtualSelectInput choices. Writes selected codes to shared reactive r.
 }

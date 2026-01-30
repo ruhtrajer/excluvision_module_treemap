@@ -4,12 +4,12 @@
 \alias{mod_treemap_server}
 \title{Treemap Module Server}
 \usage{
-mod_treemap_server(id, selected_codes)
+mod_treemap_server(id, r)
 }
 \arguments{
 \item{id}{Module namespace id}
 
-\item{selected_codes}{Reactive expression returning vector of selected ICD codes}
+\item{r}{Shared reactiveValues object with selected_codes slot}
 }
 \value{
 NULL (side effects only)
