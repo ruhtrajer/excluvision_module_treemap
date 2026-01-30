@@ -129,3 +129,96 @@ render_treemap <- function(data, title = "ICD-10 Codes Distribution") {
     aspRatio = 1.5
   )
 }
+
+#' Build hierarchical data structure for D3.js treemap
+#'
+#' Converts flat ICD data into a nested hierarchy suitable for D3.js
+#' treemap visualization. Structure: root -> chapters -> categories -> subcategories.
+#'
+#' @param data Enriched ICD data frame (from enrich_icd_data)
+#' @return Nested list with name, children, and value fields for D3.js
+#' @export
+build_treemap_hierarchy <- function(data) {
+  if (nrow(data) == 0) {
+    return(list(name = "root", children = list()))
+  }
+
+  # Load hierarchy lookup for labels
+  hiera_lookup <- get_hierarchy_lookup()
+
+  # Helper to get label from lookup
+  get_label <- function(hiera_code) {
+    idx <- match(hiera_code, hiera_lookup$hiera)
+    if (is.na(idx)) return(hiera_code)
+    hiera_lookup$lib[idx]
+  }
+
+  # Build nested structure
+  chapters <- unique(data$chapter)
+  chapters <- chapters[!is.na(chapters)]
+
+  children <- lapply(chapters, function(ch) {
+    ch_data <- data[data$chapter == ch, , drop = FALSE]
+    ch_label <- get_label(ch)
+
+    # Get categories within this chapter
+    categories <- unique(ch_data$category)
+    categories <- categories[!is.na(categories)]
+
+    if (length(categories) == 0) {
+      # Leaf node - just codes
+      return(list(
+        name = ch_label,
+        id = ch,
+        value = nrow(ch_data)
+      ))
+    }
+
+    cat_children <- lapply(categories, function(cat) {
+      cat_data <- ch_data[ch_data$category == cat, , drop = FALSE]
+      cat_hiera <- paste(ch, cat, sep = ".")
+      cat_label <- get_label(cat_hiera)
+
+      # Get subcategories within this category
+      subcats <- unique(cat_data$subcategory)
+      subcats <- subcats[!is.na(subcats)]
+
+      if (length(subcats) == 0) {
+        # Leaf node
+        return(list(
+          name = cat_label,
+          id = cat_hiera,
+          value = nrow(cat_data)
+        ))
+      }
+
+      subcat_children <- lapply(subcats, function(subcat) {
+        subcat_data <- cat_data[cat_data$subcategory == subcat, , drop = FALSE]
+        subcat_hiera <- paste(ch, cat, subcat, sep = ".")
+        subcat_label <- get_label(subcat_hiera)
+
+        list(
+          name = subcat_label,
+          id = subcat_hiera,
+          value = nrow(subcat_data)
+        )
+      })
+
+      list(
+        name = cat_label,
+        id = cat_hiera,
+        value = nrow(cat_data),
+        children = subcat_children
+      )
+    })
+
+    list(
+      name = ch_label,
+      id = ch,
+      value = nrow(ch_data),
+      children = cat_children
+    )
+  })
+
+  list(name = "root", children = children)
+}
