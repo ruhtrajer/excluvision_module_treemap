@@ -25,8 +25,7 @@ mod_icd_selector_ui <- function(id) {
       optionsSelectedText = "codes selected",
       allOptionsSelectedText = "All codes selected",
       showSelectedOptionsFirst = TRUE,
-      zIndex = 9999,
-      position = "bottom"
+      zIndex = 10
     )
   )
 }
@@ -34,12 +33,13 @@ mod_icd_selector_ui <- function(id) {
 #' ICD Selector Module Server
 #'
 #' Server logic for ICD code selector. Loads ICD data and updates
-#' virtualSelectInput choices.
+#' virtualSelectInput choices. Writes selected codes to shared reactive r.
 #'
 #' @param id Module namespace id
-#' @return Reactive expression returning vector of selected ICD codes
+#' @param r Shared reactiveValues object with selected_codes slot
+#' @return NULL (writes to r$selected_codes as side effect)
 #' @export
-mod_icd_selector_server <- function(id) {
+mod_icd_selector_server <- function(id, r) {
   shiny::moduleServer(id, function(input, output, session) {
     # Load ICD data once
     icd_data <- get_icd_data()
@@ -52,9 +52,9 @@ mod_icd_selector_server <- function(id) {
       choices = choices
     )
 
-    # Return reactive with selected codes
-    shiny::reactive({
-      input$icd_codes
+    # Write selected codes to shared reactive
+    shiny::observe({
+      r$selected_codes <- input$icd_codes
     })
   })
 }

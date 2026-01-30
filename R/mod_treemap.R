@@ -13,17 +13,17 @@ mod_treemap_ui <- function(id) {
 #' Treemap Module Server
 #'
 #' @param id Module namespace id
-#' @param selected_codes Reactive expression returning vector of selected ICD codes
+#' @param r Shared reactiveValues object with selected_codes slot
 #' @return NULL (side effects only)
 #' @export
-mod_treemap_server <- function(id, selected_codes) {
+mod_treemap_server <- function(id, r) {
   shiny::moduleServer(id, function(input, output, session) {
     # Load and enrich data once
     icd_data <- enrich_icd_data(get_icd_data())
 
-    # Filter data based on selected codes
+    # Filter data based on selected codes from shared reactive
     filtered_data <- shiny::reactive({
-      codes <- selected_codes()
+      codes <- r$selected_codes
       if (is.null(codes) || length(codes) == 0) {
         return(icd_data[0, ])
       }
