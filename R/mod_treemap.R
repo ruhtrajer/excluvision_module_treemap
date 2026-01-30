@@ -47,12 +47,14 @@ mod_treemap_server <- function(id, r) {
         return(r2d3::r2d3(
           data = list(name = "root", children = list()),
           script = app_sys("d3/treemap.js"),
+          container = "div",
           options = list(inputId = session$ns("treemap"))
         ))
       }
       r2d3::r2d3(
         data = data,
         script = app_sys("d3/treemap.js"),
+        container = "div",
         options = list(inputId = session$ns("treemap"))
       )
     })
