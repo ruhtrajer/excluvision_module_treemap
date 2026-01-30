@@ -40,17 +40,20 @@ mod_icd_selector_ui <- function(id) {
 #' @return NULL (writes to r$selected_codes as side effect)
 #' @export
 mod_icd_selector_server <- function(id, r) {
+
   shiny::moduleServer(id, function(input, output, session) {
     # Load ICD data once
     icd_data <- get_icd_data()
     choices <- format_icd_choices(icd_data)
 
-    # Update choices in virtualSelectInput
-    shinyWidgets::updateVirtualSelect(
-      session = session,
-      inputId = "icd_codes",
-      choices = choices
-    )
+    # Update choices after session is flushed (ensures UI is ready)
+    session$onFlushed(function() {
+      shinyWidgets::updateVirtualSelect(
+        session = session,
+        inputId = "icd_codes",
+        choices = choices
+      )
+    }, once = TRUE)
 
     # Write selected codes to shared reactive
     shiny::observe({
